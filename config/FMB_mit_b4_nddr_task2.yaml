@@ -1,0 +1,81 @@
+in_chans: 3
+num_classes: 15
+arch: "Task2"
+backbone: 'mit_b4'
+log_level: 'INFO'
+
+datasets:
+  dataset_name: "FMBEnhance"
+  image_height: 600
+  image_width: 800
+  root: "/data1/ZXH/NAS_MRMTL_project/Dataset/FMB/"
+  path1: "visible"
+  path1_HQ: "visible_HQ"
+  path1_suffix: ".png"
+  path2: "infrared"
+  path2_HQ: "infrared_HQ"
+  path2_suffix: ".png"
+  label: "label"
+  label_suffix: ".png"
+  split: null
+  ignore_index: 255
+  class_names: ['background', 'Road', 'Sidewalk', 'Building', 'Lamp', 'Sign', 'Vegetation', 'Sky', 'Person', 'Car', 'Truck', 'Bus', 'Motorcycle', 'Bicycle', 'Pole']
+
+num_stages: 4
+encoder:
+  img_size: [224, 56, 28, 14]
+  patch_size: [7, 3, 3, 3]
+  stride: [4, 2, 2, 2]
+  depths: [3, 8, 27, 3]
+  embed_dims: [64, 128, 320, 512]
+  num_heads: [1, 2, 5, 8]
+  mlp_ratios: [4, 4, 4, 4]
+  sr_ratios: [8, 4, 2, 1]
+  qkv_bias: Fasle
+  qk_scale: null
+  drop_rate: 0.0
+  attn_drop_rate: 0.0
+  drop_path_rate: 0.1
+
+decoder:
+  channels: [64, 128, 320, 512]
+  embed_dim: 512
+
+optimizer: "AdamW"
+
+weights:
+  task2: [0.5, 2, 2]
+
+loss:
+  patch_size: 80
+  method: "FMB"
+
+train:
+  lr: 6e-5
+  lr_power: 0.9
+  momentum: 0.9
+  weight_decay: 0.01
+  
+  batch_size: 2
+  num_workers: 2
+  
+  nepochs: 5000
+  warm_up_epoch: 10
+  train_scale_array: [0.5, 0.75, 1, 1.25, 1.5, 1.75]
+  Mask:
+   size: 40
+   strategy: "none"
+
+  fix_bias: True
+  bn_eps: 1e-3
+  bn_momentum: 0.1
+
+eval:
+  eval_stride_rate: 2/3
+  eval_scale_array: [1]
+  eval_flip: False
+  eval_crop_size: [600, 800]
+
+checkpoint:
+  start_epoch: 50
+  step: 10

@@ -1,0 +1,89 @@
+in_chans: 3
+num_classes: 9
+arch: "NAS_Task"
+backbone: 'mit_b4'
+log_level: 'INFO'
+load_task1: "./pretrained/MFNet/task1.pth"
+load_task2: "./pretrained/MFNet/task2.pth"
+
+datasets:
+  dataset_name: "MFNetEnhance"
+  image_height: 480
+  image_width: 640
+  root: ""  # put your dataset path here
+  path1: "visible"
+  path1_HQ: "visible_HQ"
+  path1_suffix: ".png"
+  path2: "infrared"
+  path2_HQ: "infrared_HQ"
+  path2_suffix: ".png"
+  label: "label"
+  label_suffix: ".png"
+  split: null
+  ignore_index: 255
+  class_names: ['unlabeled', 'car', 'person', 'bike', 'curve', 'car_stop', 'guardrail', 'color_cone', 'bump']
+
+num_stages: 4
+encoder:
+  img_size: [224, 56, 28, 14]
+  patch_size: [7, 3, 3, 3]
+  stride: [4, 2, 2, 2]
+  depths: [3, 8, 27, 3]
+  embed_dims: [64, 128, 320, 512]
+  num_heads: [1, 2, 5, 8]
+  mlp_ratios: [4, 4, 4, 4]
+  sr_ratios: [8, 4, 2, 1]
+  qkv_bias: Fasle
+  qk_scale: null
+  drop_rate: 0.0
+  attn_drop_rate: 0.0
+  drop_path_rate: 0.1
+
+nddr:
+  SEARCHSPACE: ''
+  NDDR_TYPE: 'group_attention'
+  NDDR_BN_TYPE: 'default'
+  BATCH_NORM_MOMENTUM: 0.05
+  INIT: [1.0, 0.0]
+
+decoder:
+  channels: [64, 128, 320, 512]
+  embed_dim: 512
+
+optimizer: "AdamW"
+
+weights:
+  FACTOR: 1
+  task1: [1, 1]
+  task2: [0.5, 2, 2]
+
+loss:
+  patch_size: 64
+  method: "MFNet"
+
+train:
+  lr: 5e-6
+  lr_power: 0.9
+  momentum: 0.9
+  weight_decay: 0.01
+  
+  batch_size: 4
+  num_workers: 4
+  
+  nepochs: 5000
+  warm_up_epoch: 0
+  train_scale_array: [0.5, 0.75, 1, 1.25, 1.5, 1.75]
+
+  fix_bias: True
+  bn_eps: 1e-3
+  bn_momentum: 0.1
+
+eval:
+  eval_stride_rate: 2/3
+  eval_scale_array: [1]
+  eval_flip: False
+  eval_crop_size: [480, 640]
+
+checkpoint:
+  start_epoch: 0
+  step: 2
