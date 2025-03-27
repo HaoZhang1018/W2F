@@ -1,2 +1,2 @@
 # MRFS++
-Code of Paper MRFS++: Mutually Reinforcing Image Fusion and Segmentation via Visual-Semantic Collaboration.
+Code of Paper W2F (Win-Win Fusion: Multi-Modal Image Fusion with Visual-Semantic Collaboration).
